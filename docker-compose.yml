@@ -1,36 +1,109 @@
-# do not touch! it is working after 3 days :)
-version: '3'
+version: '3.7'
+
+networks:
+  fabric_v6:   # New network for the v6 version
+    driver: bridge # Use the bridge network driver (default)
+  blockchainims_v6_fabric_custom:  # Correct name of the existing network for v6
+    external: true
+
 services:
-  # Node.js application
-  node:
+  # Node.js application for blockchainIMS_v6
+  node_v6:
     build: .
-    container_name: node-app
+    container_name: node-v6-app
     ports:
-      - "3000:3000"  # Host port 3000 mapped to container port 3000
+      - "3001:3000"  # Map host port 3001 to container port 3000
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
-      COUCHDB_HOST: couchdb
+      COUCHDB_HOST: couchdb_v6  # CouchDB instance for v6
       COUCHDB_PORT: 5984
-      COUCHDB_STATE_DB: state_ims
-      COUCHDB_LEDGER_DB: ledger_ims
+      COUCHDB_STATE_DB: state_ims_v6
+      COUCHDB_LEDGER_DB: ledger_ims_v6
       PORT: 3000
       HOST: 0.0.0.0
+    networks:
+      - fabric_v6   # Connect to the new fabric_v6 network
     depends_on:
-      - couchdb  # This ensures CouchDB starts first
+      - couchdb_v6
 
-  # CouchDB container
-  couchdb:
+  # Independent CouchDB instance for blockchainIMS_v6
+  couchdb_v6:
     image: couchdb:3.4.2
-    container_name: couchdb
+    container_name: couchdb_v6
     ports:
-      - "6984:5984"  # Expose CouchDB on port 6984
+      - "5983:5984"  # Map CouchDB to host port 5983
     environment:
       COUCHDB_USER: admin
       COUCHDB_PASSWORD: password
     volumes:
-      - couchdb_data:/opt/couchdb/data  # Persist data between restarts
+      - couchdb_v6_data:/opt/couchdb/data  # Persist data
+    networks:
+      - fabric_v6   # Connect to the new fabric_v6 network
 
-# Volumes to persist CouchDB data
+  # Fabric CA service for registering users for v6
+  fabric-ca-v6:
+    image: hyperledger/fabric-ca:latest
+    container_name: fabric-ca-v6
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_PORT=7054
+    ports:
+      - "4444:7054"  # Map CA server port to 4444
+    volumes:
+      - fabric-ca-server-v6-volume:/etc/hyperledger/fabric-ca-server
+      - /mnt/c/Projects/blockchainIMS_v6/certs:/fabric-network/certs  # Mount local certs folder (adjusted for Windows path)
+    networks:
+      - fabric_v6   # Connect to the new fabric_v6 network
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+
+  # Peer container for v6
+  peer0.org1.example.com-v6:
+    container_name: peer0.org1.example.com-v6
+    image: hyperledger/fabric-peer:latest
+    environment:
+      - CORE_PEER_ID=peer0.org1.example.com-v6
+      - CORE_PEER_ADDRESS=peer0.org1.example.com-v6:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_FILESYSTEMPATH=/var/hyperledger/production
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb_v6:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    ports:
+      - "7051:7051"
+    volumes:
+      - peer0_v6_data:/var/hyperledger/production
+    depends_on:
+      - couchdb_v6
+    networks:
+      - fabric_v6   # Connect to the new fabric_v6 network
+
+  # Orderer container for v6
+  orderer.example.com-v6:
+    container_name: orderer.example.com-v6
+    image: hyperledger/fabric-orderer:latest
+    environment:
+      - CORE_ORDERER_ID=orderer.example.com-v6
+      - CORE_ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - CORE_ORDERER_GENERAL_LISTENPORT=7050
+      - CORE_ORDERER_GENERAL_TLS_ENABLED=false
+      - CORE_ORDERER_GENERAL_BOOTSTRAPMETHOD=file
+      - CORE_ORDERER_GENERAL_GENESISFILE=/var/hyperledger/fabric/genesis.block  # Correct internal path for the genesis block
+    ports:
+      - "7050:7050"
+    volumes:
+      - orderer_data:/var/hyperledger/production
+      - ./genesis.block:/var/hyperledger/fabric/genesis.block  # Ensure genesis.block is correctly mapped
+    networks:
+      - fabric_v6   # Connect to the new fabric_v6 network
+
 volumes:
-  couchdb_data:
+  couchdb_v6_data:  # Volume for CouchDB instance
+  fabric-ca-server-v6-volume:  # Volume for Fabric CA
+  peer0_v6_data:  # Volume for peer0.org1.example.com-v6
+  orderer_data:  # Volume for Orderer container

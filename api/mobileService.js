@@ -173,6 +173,11 @@ export const generateItemQR = async () => {
         throw error;  // Rethrow the error to be handled elsewhere
     }
 };
+
+
+
+
+
 /**
  * Reassemble the ledger history into a state JSON format
  * @param {string} itemId - The unique identifier for the item.

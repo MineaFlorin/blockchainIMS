@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 const router = express.Router();
+
 // Route to display the items and their QR codes
 router.get('/qrcodes', async (req, res) => {
     try {

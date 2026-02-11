@@ -11,7 +11,23 @@ import logger from './logger.js';
 import connectDB from './config/db.js';
 // Import the full db.js file to ensure everything is loaded (including environment variables)
 import './config/db.js'; // This ensures the db file is executed, including environment variable loading and logging
-import { connectToFabric, disconnectFromFabric } from './utils/fabricConnection.js';
+import fabricRoutes from './routes/fabricRoutes.js';
+
+
+
+import { registerAndEnrollAdmin } from './adminuser/registerAndEnrollAdmin.js';
+
+// Call the function to register and enroll the admin user when starting the app
+registerAndEnrollAdmin()
+    .then(() => {
+        console.log("Admin registration and enrollment completed.");
+    })
+    .catch((error) => {
+        console.error("Error in registration and enrollment:", error);
+    });
+
+
+
 
 const app = express();
 app.use(logging); // Middleware - used to show concept
@@ -34,22 +50,7 @@ app.get('/', (req, res) => {
 
 // Mobile API route
 app.use('/api/mobile', mobileApi); // Mount the mobile API router at /api/mobile
-
-// Fabric Network Connection Route
-app.get('/fabric/connect', async (req, res) => {
-    try {
-        const gateway = await connectToFabric();
-        if (gateway) {
-            res.send('Connected to Fabric Network!');
-            await disconnectFromFabric(gateway); // Disconnect after operations
-        } else {
-            res.status(500).send('Failed to connect to Fabric Network');
-        }
-    } catch (error) {
-        logger.error('Fabric connection error: ' + error.message);
-        res.status(500).send('Error connecting to Fabric Network');
-    }
-});
+app.use('/fabric', fabricRoutes);
 
 // Auth and Dashboard routes
 app.use('/auth', authRoutes);

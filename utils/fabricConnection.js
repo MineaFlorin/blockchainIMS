@@ -2,50 +2,48 @@ import { Gateway, Wallets } from 'fabric-network';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import logger from '../logger.js';
 
-// Manually define __dirname in ES6
+// Resolve __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Path to connection.json
-const ccpPath = path.resolve(__dirname, 'connection.json');
-const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+const walletPath = path.join(process.cwd(), 'wallet');
+const ccpPath = path.resolve(__dirname, '../config/network-config.json'); // Correct path to the config folder
 
-// Connect to the Fabric network
 export async function connectToFabric() {
     try {
-        // Load a wallet for managing identities
-        const walletPath = path.join(process.cwd(), 'wallet');
+        // Load the wallet and check for the admin identity
         const wallet = await Wallets.newFileSystemWallet(walletPath);
+        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
-        // Check if the identity exists
-        const identity = await wallet.get('appUser'); // Replace with your user identity
+        const identity = await wallet.get('admin');
         if (!identity) {
-            console.log('An identity for the user "appUser" does not exist in the wallet');
-            return null;
+            logger.error('Identity "admin" does not exist in the wallet');
+            throw new Error('Admin identity not found. Enroll the admin first.');
         }
 
-        // Create a gateway connection
+        // Connect to Fabric Gateway
         const gateway = new Gateway();
         await gateway.connect(ccp, {
             wallet,
-            identity: 'appUser',
-            discovery: { enabled: true, asLocalhost: true }
+            identity: 'admin',
+            discovery: { enabled: true, asLocalhost: true },
         });
 
-        console.log('Successfully connected to Fabric network');
+        logger.info('Connected to Fabric Network');
         return gateway;
-
     } catch (error) {
-        console.error(`Failed to connect to the Fabric network: ${error}`);
-        process.exit(1);
+        logger.error(`Fabric connection failed: ${error.message}`);
+        throw error;
     }
 }
 
-// Disconnect from the Fabric network
 export async function disconnectFromFabric(gateway) {
-    if (gateway) {
+    try {
         await gateway.disconnect();
-        console.log('Disconnected from Fabric network');
+        logger.info('Disconnected from Fabric Network');
+    } catch (error) {
+        logger.error(`Error during disconnect: ${error.message}`);
     }
 }

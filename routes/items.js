@@ -273,3 +273,96 @@ router.post('/scrap', async (req, res) => {
 
 
 export default router;
+
+
+
+
+
+
+
+// // Route to get item history by itemId
+// router.get('/:itemId/history', async (req, res) => {
+//     const { itemId } = req.params;
+
+//     try {
+//         if (!itemId) {
+//             throw new Error('Invalid request: Missing item ID');
+//         }
+
+//         // Check if the item exists
+//         const itemExists = await itemContract.itemExists(null, itemId);
+//         if (!itemExists) {
+//             throw new Error(`Item ${itemId} does not exist in the state database`);
+//         }
+
+//         // Fetch the item's history from the ledger using the smart contract method
+//         const history = await itemContract.getItemHistory(null, itemId);
+
+//         // Return the history data in JSON format
+//         res.json({ history: JSON.parse(history) });
+
+//     } catch (error) {
+//         console.error(`Failed to retrieve history for item ${itemId}: ${error.message}`);
+//         res.status(500).json({ error: 'Error retrieving item history' });
+//     }
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,49 @@
+{
+  "name": "fabric-network",
+  "version": "2.5.9",
+  "client": {
+    "organization": "Org1",
+    "credentialStore": {
+      "path": "/tmp/fabric-client-credentials"
+    }
+  },
+  "channels": {
+    "mychannel": {
+      "orderers": {
+        "orderer.example.com": {
+          "url": "grpcs://localhost:7050"
+        }
+      },
+      "peers": {
+        "peer0.org1.example.com": {
+          "url": "grpcs://localhost:7051"
+        }
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "ca_org1": {
+      "url": "https://localhost:4444",
+      "caName": "ca-org1",
+      "tlsCACerts": {
+        "path": "/fabric-network/certs/ca-cert.pem"
+      }
+    }
+  },
+  "organizations": {
+    "Org1": {
+      "mspid": "Org1MSP",
+      "certificateAuthorities": ["ca_org1"]
+    }
+  },
+  "orderers": {
+    "orderer.example.com": {
+      "url": "grpcs://localhost:7050"
+    }
+  },
+  "peers": {
+    "peer0.org1.example.com": {
+      "url": "grpcs://localhost:7051"
+    }
+  }
+}

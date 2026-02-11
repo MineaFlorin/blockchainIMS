@@ -34,6 +34,27 @@ class Item {
     
     });
 
+
+    // static async getItems() {
+    //     try {
+    //         const response = await couch.get(stateDbName, '_all_docs', { include_docs: true });
+    //         const items = response.data.rows
+    //             .map(row => row.doc)
+    //             .filter(doc => doc.type === 'item'); // Only return documents with type 'item'
+    
+    //         // For each item, call readItem() to get detailed data from the ledger
+    //         for (const item of items) {
+    //             const itemDetails = await this.readItem(ctx, item.itemId);  // `readItem()` is invoked here
+    //             item.details = itemDetails; // Attach ledger data to the item
+    //         }
+    //         return items;
+    
+    //     } catch (error) {
+    //         throw new Error(`Error fetching items: ${error.message}`);
+    //     }
+    // }
+    
+
     // Get all items
     static async getItems() {
         try {

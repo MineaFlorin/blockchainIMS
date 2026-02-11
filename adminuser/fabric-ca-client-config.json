@@ -1,0 +1,7 @@
+{
+    "url": "http://localhost:4444",  
+    "caName": "fabric-ca-server",
+    "enrollId": "admin",
+    "enrollSecret": "adminpw"
+  }
+  
