@@ -115,8 +115,8 @@ router.get('/', async (req, res) => {
     try {
         const items = await Item.getItems();
         const userRole = req.session.user?.role || 'guest'; // Get the role from the session, default to 'guest' if not found
-       console.log(userRole)
-        console.log(items);
+    //    console.log(userRole)
+    //     console.log(items);
         
         res.render('items', { items, userRole }); // Pass items and userRole to the template
     } catch (err) {
@@ -176,6 +176,7 @@ router.post('/', async (req, res) => {
 
     try {
         await Item.createItem(itemData); // Save item to CouchDB
+        
         res.redirect('/api/items'); // Redirect to dashboard after saving
     } catch (err) {
         res.status(500).send('Error saving item to the database');

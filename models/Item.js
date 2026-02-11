@@ -76,7 +76,7 @@ class Item {
             // Extract the _id and _rev from the response
         const { id: createdId, rev: createdRev } = response.data;
 
-        console.log('response.data:' , response.data)
+        // console.log('response.data:' , response.data)
 
             // Create a ledger entry for the new item
            //  Create a ledger entry for the new item

@@ -64,9 +64,9 @@ class QRDisplayScreen extends StatelessWidget {
 
               return Card(
                 elevation: 2.0,
-                margin: const EdgeInsets.symmetric(vertical: 6.0),
+                margin: const EdgeInsets.symmetric(vertical: 5.0),
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 4.0, bottom: 4.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -82,7 +82,7 @@ class QRDisplayScreen extends StatelessWidget {
                         'Timestamp: $timestamp',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: Colors.blue,
                         ),
                       ),
                       const SizedBox(height: 8),
